@@ -1,0 +1,4 @@
+# Secrets and dev-only flags. Copy to .dev.vars (gitignored) and fill in.
+ANTHROPIC_API_KEY=
+# Set to true to enable GET /api/_smoke (dev only)
+ENABLE_SMOKE=

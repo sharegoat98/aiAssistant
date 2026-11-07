@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "acme-it-hr-assistant",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-04",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "assets": {
+    "directory": "./public",
+    "run_worker_first": ["/api/*", "/mcp", "/health"]
+  },
+  "durable_objects": {
+    "bindings": [{ "name": "SESSION", "class_name": "SessionDO" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["SessionDO"] }],
+  "rules": [{ "type": "Text", "globs": ["**/*.md"], "fallthrough": true }],
+  "vars": {
+    "MODEL_PROVIDER": "anthropic",
+    "MODEL_ID": "claude-haiku-5-5"
+  }
+}
