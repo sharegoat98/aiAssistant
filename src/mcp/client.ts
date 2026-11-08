@@ -181,7 +181,7 @@ export async function connectMcp(
     const mapped: Record<string, Tool> = {};
     for (const t of discovered.tools) {
       if (!Object.hasOwn(MCP_TOOL_MAP, t.name)) continue; // default deny
-      const capId = MCP_TOOL_MAP["search_knowledge_base"];
+      const capId = MCP_TOOL_MAP[t.name as keyof typeof MCP_TOOL_MAP];
       mapped[capId] = guardTool(
         capId,
         buildKbTool(client, t.name, t.description, domain, callTimeoutMs, ctx),
