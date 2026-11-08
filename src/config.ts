@@ -45,3 +45,17 @@ export const MAX_INPUT_CHARS = 2_000;
  * Older messages are dropped.
  */
 export const MAX_HISTORY_MESSAGES = 20;
+
+/**
+ * Max time for connecting to the MCP server AND discovering its tools (listTools), in ms. The
+ * server runs in-process, so a healthy connect takes milliseconds; 3 s is generous and keeps a
+ * dead or hanging server from eating into the agent's AGENT_TIMEOUT_MS budget.
+ */
+export const MCP_CONNECT_TIMEOUT_MS = 3_000;
+
+/**
+ * Max time for one MCP tool call, in ms. A knowledge-base lookup is an in-memory search; 5 s
+ * leaves room for cold starts and still lets the agent report "unavailable" well before its
+ * own timeout.
+ */
+export const MCP_CALL_TIMEOUT_MS = 5_000;
