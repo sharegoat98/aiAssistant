@@ -4,11 +4,13 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.12.0"
   },
   "scripts": {
     "dev": "wrangler dev",
-    "typecheck": "tsc --noEmit && tsc --noEmit -p test",
+    "predev": "npm run build:ui",
+    "build:ui": "vite build --config ui/vite.config.ts",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p test && tsc --noEmit -p ui",
     "test": "vitest run",
     "types": "wrangler types --env-file .dev.vars.example"
   },
@@ -17,12 +19,18 @@
     "@modelcontextprotocol/sdk": "^1.32.2",
     "ai": "^7.0.165",
     "hono": "^4.13.17",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "zod": "^4.6.7"
   },
   "devDependencies": {
     "@cloudflare/vitest-plugin": "^1.6.0",
     "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.2.1",
     "typescript": "^7.0.2",
+    "vite": "^8.3.6",
     "vitest": "^5.1.0",
     "wrangler": "^4.158.0"
   }
