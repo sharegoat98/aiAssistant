@@ -1,7 +1,11 @@
 import { KB_ARTICLES, type KbArticle, type KbDomain } from "../data/kb";
 
 export const MAX_RESULTS = 3;
-export const SNIPPET_CHARS = 200;
+/**
+ * Upper cap on the text returned per result. KB articles are short (well under 1000 chars), so
+ * the snippet is the complete article; the cap only bounds a future oversized article.
+ */
+export const SNIPPET_CHARS = 2_000;
 const TITLE_WEIGHT = 3;
 const BODY_WEIGHT = 1;
 

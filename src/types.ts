@@ -1,6 +1,8 @@
 export type Role = "employee" | "manager";
 
-export type AgentId = "orchestrator" | "it" | "hr";
+export const AGENT_IDS = ["orchestrator", "it", "hr"] as const;
+
+export type AgentId = (typeof AGENT_IDS)[number];
 
 interface TraceBase {
   /** Epoch milliseconds. */
@@ -9,7 +11,7 @@ interface TraceBase {
 }
 
 export type TraceEvent =
-  | (TraceBase & { readonly type: "agent_start" })
+  | (TraceBase & { readonly type: "agent_start"; readonly task?: string })
   | (TraceBase & { readonly type: "tool_call"; readonly tool: string; readonly input: unknown })
   | (TraceBase & {
       readonly type: "tool_result";
@@ -21,7 +23,8 @@ export type TraceEvent =
   | (TraceBase & {
       readonly type: "agent_end";
       readonly status: DelegationStatus;
-      readonly steps: number;
+      /** Omitted when unknown (runAgent does not expose its step count). */
+      readonly steps?: number;
     })
   | (TraceBase & { readonly type: "mcp_unavailable"; readonly reason: string });
 

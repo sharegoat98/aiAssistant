@@ -11,7 +11,7 @@ export const smoke = new Hono<{ Bindings: Env }>();
 
 smoke.get("/_smoke", async (c) => {
   if (c.env.ENABLE_SMOKE !== "true") {
-    return c.json({ error: "Not found" }, 404);
+    return c.json({ error: "not_found", message: "Not found." }, 404);
   }
   try {
     const model = getModel(c.env);

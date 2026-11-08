@@ -54,7 +54,7 @@ describe("searchKnowledge", () => {
   });
 
   it("truncates long snippets and keeps short bodies intact", () => {
-    const long = ITEM("l", "Long", `needle ${"word ".repeat(100)}`);
+    const long = ITEM("l", "Long", `needle ${"word ".repeat(1000)}`);
     const short = ITEM("s", "Short", "needle only");
     const [l, s] = [
       searchKnowledge("needle", "it", [long])[0],
@@ -63,5 +63,13 @@ describe("searchKnowledge", () => {
     expect(l?.snippet.length).toBeLessThanOrEqual(SNIPPET_CHARS + 1);
     expect(l?.snippet.endsWith("…")).toBe(true);
     expect(s?.snippet).toBe("needle only");
+  });
+
+  it("returns the complete body for every article in the KB (nothing is silently cut)", () => {
+    for (const a of KB_ARTICLES) {
+      expect(a.body.length).toBeLessThanOrEqual(SNIPPET_CHARS);
+      const hit = searchKnowledge(a.title, a.domain).find((r) => r.id === a.id);
+      expect(hit?.snippet).toBe(a.body);
+    }
   });
 });

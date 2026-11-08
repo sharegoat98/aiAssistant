@@ -2,14 +2,21 @@ import type { Role } from "./types";
 
 export interface User {
   readonly userId: string;
+  /** Human-readable name for the user switcher. */
+  readonly label: string;
   readonly role: Role;
 }
 
 /** The two predefined users of the demo. The "user switcher" is the X-User request header. */
 const USERS: Readonly<Record<string, User>> = {
-  ana: { userId: "ana", role: "employee" },
-  marko: { userId: "marko", role: "manager" },
+  ana: { userId: "ana", label: "Ana (employee)", role: "employee" },
+  marko: { userId: "marko", label: "Marko (manager)", role: "manager" },
 };
+
+/** The predefined users for the switcher dropdown. Contains no secrets. */
+export function listUsers(): User[] {
+  return Object.values(USERS);
+}
 
 export const USER_HEADER = "X-User";
 

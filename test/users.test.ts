@@ -6,8 +6,8 @@ const req = (headers?: Record<string, string>) =>
 
 describe("resolveUser", () => {
   it("resolves ana as employee and marko as manager", () => {
-    expect(resolveUser(req({ "X-User": "ana" }))).toEqual({ userId: "ana", role: "employee" });
-    expect(resolveUser(req({ "X-User": "marko" }))).toEqual({ userId: "marko", role: "manager" });
+    expect(resolveUser(req({ "X-User": "ana" }))).toMatchObject({ userId: "ana", role: "employee" });
+    expect(resolveUser(req({ "X-User": "marko" }))).toMatchObject({ userId: "marko", role: "manager" });
   });
 
   it("tolerates case and surrounding whitespace", () => {

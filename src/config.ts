@@ -59,3 +59,11 @@ export const MCP_CONNECT_TIMEOUT_MS = 3_000;
  * own timeout.
  */
 export const MCP_CALL_TIMEOUT_MS = 5_000;
+
+/**
+ * Max specialist delegations (tool calls to ask_it_specialist / ask_hr_specialist) in one user
+ * request. 4 covers both domains plus one follow-up delegation with forwarded results per domain,
+ * stays below MAX_STEPS_ORCHESTRATOR (8) and caps the cost of a looping model. Calls beyond it
+ * return "unavailable" without running anything.
+ */
+export const MAX_DELEGATIONS_PER_REQUEST = 4;
