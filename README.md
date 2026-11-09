@@ -243,7 +243,6 @@ A systematic pass would add a coverage report and mutation checks for the permis
 - The header-based user switcher is spoofable by design (no authentication; out of scope). The two users are fixed records.
 - No streaming: the reply arrives when the whole request is done, and each message triggers several model calls, so a reply takes several seconds.
 - No rate limiting.
-- Aborting a request in the browser may not stop the work already running in the Worker.
 - The MCP server runs in the same Worker, and knowledge-base search is simple keyword matching.
 - All company data is fictional ("Acme d.o.o.").
 - UI logic is tested only for the trace view ([test/trace.test.ts](test/trace.test.ts), [test/trace-schema.test.ts](test/trace-schema.test.ts)); there are no browser tests.
@@ -260,13 +259,11 @@ A systematic pass would add a coverage report and mutation checks for the permis
 - **Secrets and data protection.** Secrets via `wrangler secret` instead of `.dev.vars`, key rotation, and masking of personal data in traces and logs.
 - **Observability.** Structured logs, metrics, per-request cost tracking, and trace storage beyond the Worker logs and the browser UI.
 - **CI and deployment.** A pipeline running type checks and tests and scanning for committed secrets, plus `wrangler deploy` for staging and production.
-- **An evaluation suite**, as described above.
 
 ### Further improvements
 
 - **Quality and cost of answers.** A smaller, cheaper model for specialist lookups and a stronger one for the orchestrator, chosen per agent behind `getModel`; prompt caching for the stable parts of the prompts.
 - **Retrieval.** Replace keyword matching with vector search and make articles updatable without a redeploy.
-- **Skills from storage.** Load skills from KV or R2 instead of bundling them at build time, keeping the same on-demand loading mechanism.
 - **Orchestration framework.** Model calls and tools use the Vercel AI SDK, but the orchestration itself (delegation, concurrency, limits, honest failure reporting) is hand-written, which keeps each component small and visible. A graph-based framework such as LangGraph.js, or the Cloudflare Agents SDK, would add state graphs, retries, checkpointing and ready-made agent hosting, at the cost of a heavier dependency and a less transparent control flow. Worth revisiting as the flows get more complex.
 - **More LLM providers.** `getModel` currently supports only Anthropic. Another provider is one new case plus its API key, or the `ai` binding for Workers AI.
 - **Docker.** The app runs through Wrangler, so a Dockerfile would mainly give a reproducible local and CI environment, not a production artifact (production runs on Cloudflare).
@@ -278,7 +275,7 @@ A systematic pass would add a coverage report and mutation checks for the permis
 The application was built with an AI coding agent, with me directing the work and reviewing every step. The process was deliberately structured:
 
 - **Task decomposition.** I first split the task into concrete units (project setup, types and permissions, native tools, agent loop, MCP server and client, skills, specialists, orchestrator, API, UI, documentation), each with its own prompt, a clear goal and strict constraints.
-- **Constant reference to the requirements.** The agent was given the full task text and a requirements checklist as working documents and had to follow them while generating code. I steered it when it drifted, for example away from the on-demand skill loading, the permission model, or the agent boundaries the task defines.
+- **Constant reference to the requirements.** The agent was given the full task text and a requirements checklist as working documents and had to follow them while generating code. I steered it when it drifted.
 - **Concise, context-aware prompts.** Every prompt stated the goal, the relevant task requirements, acceptance criteria and explicit constraints, and took into account what was already implemented, so the agent reused existing code instead of duplicating it.
 - **Plan review before code.** For each prompt I read the agent's plan first and corrected it before anything was written.
 - **Manual approval of every change.** Code was generated with each edit approved by hand, and I reviewed and adjusted the unit tests to confirm the intended behaviour, not just that the tests pass.
