@@ -3,11 +3,11 @@ import { SALARY_BANDS } from "../src/data/mock";
 import { KB_ARTICLES } from "../src/data/kb";
 
 describe("knowledge base content", () => {
-  it("has 10 articles with unique ids across both domains", () => {
-    expect(KB_ARTICLES).toHaveLength(10);
-    expect(new Set(KB_ARTICLES.map((a) => a.id)).size).toBe(10);
+  it("has 11 articles with unique ids across both domains", () => {
+    expect(KB_ARTICLES).toHaveLength(11);
+    expect(new Set(KB_ARTICLES.map((a) => a.id)).size).toBe(11);
     expect(KB_ARTICLES.filter((a) => a.domain === "it")).toHaveLength(5);
-    expect(KB_ARTICLES.filter((a) => a.domain === "hr")).toHaveLength(5);
+    expect(KB_ARTICLES.filter((a) => a.domain === "hr")).toHaveLength(6);
   });
 
   it("contains no salary figures (salary data is role-restricted)", () => {
