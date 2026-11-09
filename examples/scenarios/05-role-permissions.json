@@ -1,0 +1,191 @@
+{
+  "scenario": {
+    "id": "05",
+    "title": "A capability the user's role lacks (salary band), compared across roles",
+    "expected": "For the employee the capability is not exposed to any agent and the orchestrator explains it cannot be done; for the manager the same question is answered through the HR specialist."
+  },
+  "model": {
+    "provider": "anthropic",
+    "id": "claude-haiku-5-5"
+  },
+  "date": "2026-11-09",
+  "shownAttempt": 1,
+  "attempts": [
+    {
+      "runs": [
+        {
+          "user": "ana",
+          "prompt": "What is the salary band for a senior developer?",
+          "httpStatus": 200,
+          "response": {
+            "reply": "I can't share salary band information for senior developer roles. Your role doesn't have access to salary bands, so this isn't something I can look up for you.",
+            "status": "ok",
+            "trace": [
+              {
+                "ts": 1794183700077,
+                "agent": "orchestrator",
+                "type": "agent_start"
+              },
+              {
+                "ts": 1794183701896,
+                "agent": "orchestrator",
+                "type": "agent_end",
+                "status": "ok"
+              }
+            ]
+          },
+          "summary": {
+            "delegations": [],
+            "overlap": false,
+            "tools": [],
+            "skills": [],
+            "mcpUnavailable": [],
+            "finalStatuses": {
+              "orchestrator": "ok"
+            }
+          }
+        },
+        {
+          "user": "marko",
+          "prompt": "What is the salary band for a senior developer?",
+          "httpStatus": 200,
+          "response": {
+            "reply": "The salary band for a Senior Developer at Acme d.o.o. is **48,000 EUR to 68,000 EUR gross per year**.\n\nThe HR system does not give any level or grade breakdown for this role. I also could not find a knowledge base article describing the salary band structure, so this figure comes from the salary band lookup alone.",
+            "status": "ok",
+            "trace": [
+              {
+                "ts": 1794183701913,
+                "agent": "orchestrator",
+                "type": "agent_start"
+              },
+              {
+                "ts": 1794183703115,
+                "agent": "orchestrator",
+                "type": "tool_call",
+                "tool": "ask_hr_specialist",
+                "input": {
+                  "task": "Look up the salary band for the position \"senior developer\" at Acme d.o.o. Report the band (minimum and maximum, currency, and any level or grade details) and cite the knowledge base article(s) used, if any."
+                }
+              },
+              {
+                "ts": 1794183703115,
+                "agent": "hr",
+                "type": "agent_start",
+                "task": "Look up the salary band for the position \"senior developer\" at Acme d.o.o. Report the band (minimum and maximum, currency, and any level or grade details) and cite the knowledge base article(s) used, "
+              },
+              {
+                "ts": 1794183704134,
+                "agent": "hr",
+                "type": "tool_call",
+                "tool": "get_salary_band",
+                "input": {
+                  "position": "senior developer"
+                }
+              },
+              {
+                "ts": 1794183704134,
+                "agent": "hr",
+                "type": "tool_call",
+                "tool": "kb_search",
+                "input": {
+                  "query": "salary band senior developer"
+                }
+              },
+              {
+                "ts": 1794183704136,
+                "agent": "hr",
+                "type": "tool_result",
+                "tool": "get_salary_band",
+                "ok": true,
+                "summary": "{\"ok\":true,\"band\":{\"position\":\"Senior Developer\",\"currency\":\"EUR\",\"min\":48000,\"max\":68000}}"
+              },
+              {
+                "ts": 1794183704137,
+                "agent": "hr",
+                "type": "tool_result",
+                "tool": "kb_search",
+                "ok": true,
+                "summary": "{\"ok\":true,\"results\":[{\"id\":\"hr-equipment-profiles\",\"title\":\"Equipment profiles: Developer Workstation for engineers\",\"snippet\":\"HR assigns every new employee one equipment profile based on the role. …"
+              },
+              {
+                "ts": 1794183705977,
+                "agent": "hr",
+                "type": "agent_end",
+                "status": "ok"
+              },
+              {
+                "ts": 1794183705977,
+                "agent": "orchestrator",
+                "type": "tool_result",
+                "tool": "ask_hr_specialist",
+                "ok": true,
+                "summary": "{\"status\":\"ok\",\"agent\":\"hr\",\"content\":\"**Findings**\\n- Senior Developer salary band (gross, yearly, EUR): minimum 48,000 EUR, maximum 68,000 EUR.\\n- The band result has no level or grade details.\\n\\n*…"
+              },
+              {
+                "ts": 1794183707104,
+                "agent": "orchestrator",
+                "type": "agent_end",
+                "status": "ok"
+              }
+            ]
+          },
+          "summary": {
+            "delegations": [
+              {
+                "agent": "hr",
+                "task": "Look up the salary band for the position \"senior developer\" at Acme d.o.o. Report the band (minimum and maximum, currency, and any level or grade details) and cite the knowledge base article(s) used, if any.",
+                "startMs": 1202,
+                "endMs": 4064,
+                "status": "ok"
+              }
+            ],
+            "overlap": false,
+            "tools": [
+              {
+                "agent": "orchestrator",
+                "tool": "ask_hr_specialist",
+                "calls": 1,
+                "ok": 1,
+                "failed": 0
+              },
+              {
+                "agent": "hr",
+                "tool": "get_salary_band",
+                "calls": 1,
+                "ok": 1,
+                "failed": 0
+              },
+              {
+                "agent": "hr",
+                "tool": "kb_search",
+                "calls": 1,
+                "ok": 1,
+                "failed": 0
+              }
+            ],
+            "skills": [],
+            "mcpUnavailable": [],
+            "finalStatuses": {
+              "hr": "ok",
+              "orchestrator": "ok"
+            }
+          }
+        }
+      ],
+      "expectations": [
+        {
+          "verdict": "PASS",
+          "text": "ana: no get_salary_band call by any agent"
+        },
+        {
+          "verdict": "INFO",
+          "text": "ana: HR delegations: 0; the reply must state that this is not possible (check the reply text)"
+        },
+        {
+          "verdict": "PASS",
+          "text": "marko: a successful get_salary_band call by the HR specialist"
+        }
+      ]
+    }
+  ]
+}

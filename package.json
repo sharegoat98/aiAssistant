@@ -10,8 +10,9 @@
     "dev": "wrangler dev",
     "predev": "npm run build:ui",
     "build:ui": "vite build --config ui/vite.config.ts",
-    "typecheck": "tsc --noEmit && tsc --noEmit -p test && tsc --noEmit -p ui",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p test && tsc --noEmit -p ui && tsc --noEmit -p scripts",
     "test": "vitest run",
+    "demo": "node --experimental-strip-types scripts/demo.ts",
     "types": "wrangler types --env-file .dev.vars.example"
   },
   "dependencies": {

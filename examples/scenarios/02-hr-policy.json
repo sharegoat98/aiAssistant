@@ -1,0 +1,247 @@
+{
+  "scenario": {
+    "id": "02",
+    "title": "HR policy question",
+    "expected": "HR delegation, MCP-backed retrieval."
+  },
+  "model": {
+    "provider": "anthropic",
+    "id": "claude-haiku-5-5"
+  },
+  "date": "2026-11-09",
+  "shownAttempt": 1,
+  "attempts": [
+    {
+      "runs": [
+        {
+          "user": "ana",
+          "prompt": "What is the company policy on working remotely, and how do I request it?",
+          "httpStatus": 200,
+          "response": {
+            "reply": "Here is what the company's remote work policy says, based on the \"Remote work policy\" knowledge base article (hr-remote-work). I could only see a summary of that article, not its full text.\n\n**The policy:**\n- You may work remotely up to 2 days per week.\n- The remote days are agreed with your manager.\n- Remote work requires a company laptop, a connection to the company VPN, and a quiet workspace.\n- Your remote days are recorded in the HR portal.\n- Working fully remote requires written approval from HR.\n\n**How to request it:** The summary says remote days are agreed with your manager and recorded in the HR portal. I could not confirm the exact steps, whether there is a specific request form, or who is eligible. Your best next step is to talk to your manager about the days you want. If you need the full policy, the eligibility rules, or the process for fully remote work, ask HR directly or check the full \"Remote work policy\" article in the knowledge base.",
+            "status": "ok",
+            "trace": [
+              {
+                "ts": 1794183654965,
+                "agent": "orchestrator",
+                "type": "agent_start"
+              },
+              {
+                "ts": 1794183656269,
+                "agent": "orchestrator",
+                "type": "tool_call",
+                "tool": "ask_hr_specialist",
+                "input": {
+                  "task": "Find the company policy on remote work (working remotely / working from home) at Acme d.o.o. Summarize the policy rules (eligibility, limits on days per week, approval requirements) and explain the step-by-step process an employee follows to request remote work, including which channel or form to use. Cite the knowledge base articles or policy documents used by name."
+                }
+              },
+              {
+                "ts": 1794183656269,
+                "agent": "hr",
+                "type": "agent_start",
+                "task": "Find the company policy on remote work (working remotely / working from home) at Acme d.o.o. Summarize the policy rules (eligibility, limits on days per week, approval requirements) and explain the st"
+              },
+              {
+                "ts": 1794183657769,
+                "agent": "hr",
+                "type": "tool_call",
+                "tool": "kb_search",
+                "input": {
+                  "query": "remote work"
+                }
+              },
+              {
+                "ts": 1794183657769,
+                "agent": "hr",
+                "type": "tool_call",
+                "tool": "kb_search",
+                "input": {
+                  "query": "working from home"
+                }
+              },
+              {
+                "ts": 1794183657774,
+                "agent": "hr",
+                "type": "tool_result",
+                "tool": "kb_search",
+                "ok": true,
+                "summary": "{\"ok\":true,\"results\":[{\"id\":\"hr-remote-work\",\"title\":\"Remote work policy\",\"snippet\":\"Employees may work remotely up to 2 days per week, agreed with their manager. Remote work requires a company laptop…"
+              },
+              {
+                "ts": 1794183657774,
+                "agent": "hr",
+                "type": "tool_result",
+                "tool": "kb_search",
+                "ok": true,
+                "summary": "{\"ok\":true,\"results\":[{\"id\":\"hr-annual-leave\",\"title\":\"Annual leave\",\"snippet\":\"Every Acme d.o.o. employee is entitled to 22 working days of annual leave per calendar year, plus public holidays. Reque…"
+              },
+              {
+                "ts": 1794183659178,
+                "agent": "hr",
+                "type": "tool_call",
+                "tool": "kb_search",
+                "input": {
+                  "query": "remote work request form HR portal approval"
+                }
+              },
+              {
+                "ts": 1794183659178,
+                "agent": "hr",
+                "type": "tool_call",
+                "tool": "kb_search",
+                "input": {
+                  "query": "remote work eligibility full-time remote written approval"
+                }
+              },
+              {
+                "ts": 1794183659181,
+                "agent": "hr",
+                "type": "tool_result",
+                "tool": "kb_search",
+                "ok": true,
+                "summary": "{\"ok\":true,\"results\":[{\"id\":\"hr-remote-work\",\"title\":\"Remote work policy\",\"snippet\":\"Employees may work remotely up to 2 days per week, agreed with their manager. Remote work requires a company laptop…"
+              },
+              {
+                "ts": 1794183659181,
+                "agent": "hr",
+                "type": "tool_result",
+                "tool": "kb_search",
+                "ok": true,
+                "summary": "{\"ok\":true,\"results\":[{\"id\":\"hr-remote-work\",\"title\":\"Remote work policy\",\"snippet\":\"Employees may work remotely up to 2 days per week, agreed with their manager. Remote work requires a company laptop…"
+              },
+              {
+                "ts": 1794183662180,
+                "agent": "hr",
+                "type": "agent_end",
+                "status": "ok"
+              },
+              {
+                "ts": 1794183662180,
+                "agent": "orchestrator",
+                "type": "tool_result",
+                "tool": "ask_hr_specialist",
+                "ok": true,
+                "summary": "{\"status\":\"ok\",\"agent\":\"hr\",\"content\":\"**Findings**\\n\\nSource: \\\"Remote work policy\\\" (hr-remote-work). This is the only knowledge base article on remote work. I could only see its search summary, not…"
+              },
+              {
+                "ts": 1794183663858,
+                "agent": "orchestrator",
+                "type": "tool_call",
+                "tool": "ask_hr_specialist",
+                "input": {
+                  "task": "Open the full text of the knowledge base article \"Remote work policy\" (article id hr-remote-work) at Acme d.o.o. Report the complete content, especially: who is eligible for remote work, the exact steps to request remote work, the form or HR portal section to use for the request, who approves it, and the process for full-time remote work approval by HR. Cite the article by name."
+                }
+              },
+              {
+                "ts": 1794183663859,
+                "agent": "hr",
+                "type": "agent_start",
+                "task": "Open the full text of the knowledge base article \"Remote work policy\" (article id hr-remote-work) at Acme d.o.o. Report the complete content, especially: who is eligible for remote work, the exact ste"
+              },
+              {
+                "ts": 1794183664980,
+                "agent": "hr",
+                "type": "tool_call",
+                "tool": "kb_search",
+                "input": {
+                  "query": "hr-remote-work"
+                }
+              },
+              {
+                "ts": 1794183664982,
+                "agent": "hr",
+                "type": "tool_result",
+                "tool": "kb_search",
+                "ok": true,
+                "summary": "{\"ok\":true,\"results\":[{\"id\":\"hr-remote-work\",\"title\":\"Remote work policy\",\"snippet\":\"Employees may work remotely up to 2 days per week, agreed with their manager. Remote work requires a company laptop…"
+              },
+              {
+                "ts": 1794183666859,
+                "agent": "hr",
+                "type": "agent_end",
+                "status": "ok"
+              },
+              {
+                "ts": 1794183666859,
+                "agent": "orchestrator",
+                "type": "tool_result",
+                "tool": "ask_hr_specialist",
+                "ok": true,
+                "summary": "{\"status\":\"ok\",\"agent\":\"hr\",\"content\":\"**Findings**\\n\\n- I could not open the full article. My tools only search the knowledge base and return short summaries. Searching by article id returned the sam…"
+              },
+              {
+                "ts": 1794183669303,
+                "agent": "orchestrator",
+                "type": "agent_end",
+                "status": "ok"
+              }
+            ]
+          },
+          "summary": {
+            "delegations": [
+              {
+                "agent": "hr",
+                "task": "Find the company policy on remote work (working remotely / working from home) at Acme d.o.o. Summarize the policy rules (eligibility, limits on days per week, approval requirements) and explain the step-by-step process an employee follows to request remote work, including which channel or form to use. Cite the knowledge base articles or policy documents used by name.",
+                "startMs": 1304,
+                "endMs": 7215,
+                "status": "ok"
+              },
+              {
+                "agent": "hr",
+                "task": "Open the full text of the knowledge base article \"Remote work policy\" (article id hr-remote-work) at Acme d.o.o. Report the complete content, especially: who is eligible for remote work, the exact steps to request remote work, the form or HR portal section to use for the request, who approves it, and the process for full-time remote work approval by HR. Cite the article by name.",
+                "startMs": 8894,
+                "endMs": 11894,
+                "status": "ok"
+              }
+            ],
+            "overlap": false,
+            "tools": [
+              {
+                "agent": "orchestrator",
+                "tool": "ask_hr_specialist",
+                "calls": 2,
+                "ok": 2,
+                "failed": 0
+              },
+              {
+                "agent": "hr",
+                "tool": "kb_search",
+                "calls": 5,
+                "ok": 5,
+                "failed": 0
+              }
+            ],
+            "skills": [],
+            "mcpUnavailable": [],
+            "finalStatuses": {
+              "hr": "ok",
+              "orchestrator": "ok"
+            }
+          }
+        }
+      ],
+      "expectations": [
+        {
+          "verdict": "PASS",
+          "text": "The HR specialist was delegated to"
+        },
+        {
+          "verdict": "PASS",
+          "text": "The HR specialist retrieved knowledge through the MCP tool kb_search (at least one successful result)"
+        },
+        {
+          "verdict": "PASS",
+          "text": "No mcp_unavailable event"
+        },
+        {
+          "verdict": "INFO",
+          "text": "IT specialist delegations: 0"
+        },
+        {
+          "verdict": "PASS",
+          "text": "The orchestrator finished with status ok and a non-empty reply"
+        }
+      ]
+    }
+  ]
+}

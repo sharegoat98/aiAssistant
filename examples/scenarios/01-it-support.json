@@ -1,0 +1,203 @@
+{
+  "scenario": {
+    "id": "01",
+    "title": "IT support question",
+    "expected": "IT delegation, skill loading, native tool use."
+  },
+  "model": {
+    "provider": "anthropic",
+    "id": "claude-haiku-5-5"
+  },
+  "date": "2026-11-09",
+  "shownAttempt": 1,
+  "attempts": [
+    {
+      "runs": [
+        {
+          "user": "ana",
+          "prompt": "My VPN keeps disconnecting every few minutes when I work from home. Can you help me fix it?",
+          "httpStatus": 200,
+          "response": {
+            "reply": "The VPN service is currently reporting a degraded status. The IT status page notes elevated latency and occasional disconnects on the Belgrade gateway, last updated 2026-03-02 08:15 UTC, and engineers are investigating. Your drops may be caused by this, not only by your home connection.\n\n**What you can try now (from the \"VPN connection problems\" knowledge base article):**\n\n1. **Check your home connection.** Load a few websites or run a speed test. If you're on Wi-Fi, move closer to the router or switch to a cable.\n2. **Restart the VPN client** and reconnect.\n3. **Reinstall the client if it still fails.** Uninstall it, download the latest version from the company software portal, sign in again, and complete MFA.\n4. **Check whether the drops continue.**\n\nBecause of the gateway issue, I'd recommend opening a ticket with the IT service desk soon rather than spending a long time on local fixes. To speed things up, include:\n\n- The status note above (degraded, Belgrade gateway, updated 2026-03-02 08:15 UTC).\n- Which steps you've already tried and what happened.\n- The exact error message and the times the disconnects occur.\n- The VPN client log, which the article requires.\n\nIt would also help to know whether you're on Wi-Fi or a cable, and how often the drops happen. If other colleagues are affected too, the article says to call the on-call network engineer.",
+            "status": "ok",
+            "trace": [
+              {
+                "ts": 1794183643937,
+                "agent": "orchestrator",
+                "type": "agent_start"
+              },
+              {
+                "ts": 1794183645456,
+                "agent": "orchestrator",
+                "type": "tool_call",
+                "tool": "ask_it_specialist",
+                "input": {
+                  "task": "An employee working from home reports that their company VPN keeps disconnecting every few minutes. Please find relevant troubleshooting steps from the knowledge base (wiki / IT how-to articles) for VPN disconnects or instability on home networks, and check whether there is any known service outage affecting VPN. Return the steps and the names of the knowledge base articles used."
+                }
+              },
+              {
+                "ts": 1794183645456,
+                "agent": "it",
+                "type": "agent_start",
+                "task": "An employee working from home reports that their company VPN keeps disconnecting every few minutes. Please find relevant troubleshooting steps from the knowledge base (wiki / IT how-to articles) for V"
+              },
+              {
+                "ts": 1794183647060,
+                "agent": "it",
+                "type": "tool_call",
+                "tool": "load_skill",
+                "input": {
+                  "name": "vpn-troubleshooting"
+                }
+              },
+              {
+                "ts": 1794183647060,
+                "agent": "it",
+                "type": "tool_call",
+                "tool": "get_service_status",
+                "input": {
+                  "service": "vpn"
+                }
+              },
+              {
+                "ts": 1794183647060,
+                "agent": "it",
+                "type": "tool_call",
+                "tool": "kb_search",
+                "input": {
+                  "query": "VPN disconnects home network"
+                }
+              },
+              {
+                "ts": 1794183647060,
+                "agent": "it",
+                "type": "skill_loaded",
+                "skill": "vpn-troubleshooting"
+              },
+              {
+                "ts": 1794183647061,
+                "agent": "it",
+                "type": "tool_result",
+                "tool": "load_skill",
+                "ok": true,
+                "summary": "{\"ok\":true,\"name\":\"vpn-troubleshooting\",\"instructions\":\"# VPN troubleshooting\\n\\nSKILL-BODY-MARKER-VPN: follow these steps in order and do not skip any.\\n\\n1. Call `get_service_status` with service \\\"…"
+              },
+              {
+                "ts": 1794183647061,
+                "agent": "it",
+                "type": "tool_result",
+                "tool": "get_service_status",
+                "ok": true,
+                "summary": "{\"ok\":true,\"service\":\"vpn\",\"status\":\"degraded\",\"updatedAt\":\"2026-03-02T08:15:00.000Z\",\"note\":\"Elevated latency and occasional disconnects on the Belgrade gateway; engineers are investigating.\"}"
+              },
+              {
+                "ts": 1794183647061,
+                "agent": "it",
+                "type": "tool_result",
+                "tool": "kb_search",
+                "ok": true,
+                "summary": "{\"ok\":true,\"results\":[{\"id\":\"it-vpn\",\"title\":\"VPN connection problems\",\"snippet\":\"If the VPN does not connect, first check your internet connection and restart the VPN client. If that fails, the VPN c…"
+              },
+              {
+                "ts": 1794183651908,
+                "agent": "it",
+                "type": "agent_end",
+                "status": "ok"
+              },
+              {
+                "ts": 1794183651908,
+                "agent": "orchestrator",
+                "type": "tool_result",
+                "tool": "ask_it_specialist",
+                "ok": true,
+                "summary": "{\"status\":\"ok\",\"agent\":\"it\",\"content\":\"## Findings\\n- **VPN status: degraded.** Last updated 2026-03-02 08:15 UTC. Note: \\\"Elevated latency and occasional disconnects on the Belgrade gateway; engineer…"
+              },
+              {
+                "ts": 1794183654923,
+                "agent": "orchestrator",
+                "type": "agent_end",
+                "status": "ok"
+              }
+            ]
+          },
+          "summary": {
+            "delegations": [
+              {
+                "agent": "it",
+                "task": "An employee working from home reports that their company VPN keeps disconnecting every few minutes. Please find relevant troubleshooting steps from the knowledge base (wiki / IT how-to articles) for VPN disconnects or instability on home networks, and check whether there is any known service outage affecting VPN. Return the steps and the names of the knowledge base articles used.",
+                "startMs": 1519,
+                "endMs": 7971,
+                "status": "ok"
+              }
+            ],
+            "overlap": false,
+            "tools": [
+              {
+                "agent": "orchestrator",
+                "tool": "ask_it_specialist",
+                "calls": 1,
+                "ok": 1,
+                "failed": 0
+              },
+              {
+                "agent": "it",
+                "tool": "load_skill",
+                "calls": 1,
+                "ok": 1,
+                "failed": 0
+              },
+              {
+                "agent": "it",
+                "tool": "get_service_status",
+                "calls": 1,
+                "ok": 1,
+                "failed": 0
+              },
+              {
+                "agent": "it",
+                "tool": "kb_search",
+                "calls": 1,
+                "ok": 1,
+                "failed": 0
+              }
+            ],
+            "skills": [
+              {
+                "agent": "it",
+                "skill": "vpn-troubleshooting",
+                "atMs": 3123
+              }
+            ],
+            "mcpUnavailable": [],
+            "finalStatuses": {
+              "it": "ok",
+              "orchestrator": "ok"
+            }
+          }
+        }
+      ],
+      "expectations": [
+        {
+          "verdict": "PASS",
+          "text": "The IT specialist was delegated to"
+        },
+        {
+          "verdict": "PASS",
+          "text": "The HR specialist was not delegated to"
+        },
+        {
+          "verdict": "PASS",
+          "text": "The IT specialist loaded a skill (vpn-troubleshooting)"
+        },
+        {
+          "verdict": "PASS",
+          "text": "The IT specialist called the native tool get_service_status"
+        },
+        {
+          "verdict": "PASS",
+          "text": "The orchestrator finished with status ok and a non-empty reply"
+        }
+      ]
+    }
+  ]
+}

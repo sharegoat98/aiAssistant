@@ -31,6 +31,18 @@ export const KB_ARTICLES: readonly KbArticle[] = [
       "three months.",
   },
   {
+    id: "hr-equipment-profiles",
+    domain: "hr",
+    title: "Equipment profiles: Developer Workstation for engineers",
+    body:
+      "HR assigns every new employee one equipment profile based on the role. Engineers (backend, " +
+      "frontend and QA developers) receive the profile 'Developer Workstation': a 16-inch laptop with " +
+      "32 GB RAM, two external monitors, a headset and a docking station; local administrator rights " +
+      "are granted only through an approved IT request. All other roles receive the profile 'Office " +
+      "Standard': a 14-inch laptop with 16 GB RAM, one monitor and a headset. IT prepares and delivers " +
+      "the equipment; HR only decides which profile applies.",
+  },
+  {
     id: "hr-parental-leave",
     domain: "hr",
     title: "Parental leave",

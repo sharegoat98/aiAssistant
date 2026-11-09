@@ -163,6 +163,39 @@ The demonstrated execution is the test "loads the skill on demand, applies its s
 
 The React UI in [ui/](ui/) is built by Vite into `ui-dist/` and served by the Worker as static assets (`/api/*`, `/mcp` and `/health` go to the Worker first). It has a user switcher, a capabilities panel, four demo buttons (Parallel, Dependent, Restricted, Skill) and an execution-trace panel that groups overlapping specialist runs under "ran in parallel".
 
+## Demo scenarios
+
+A demo runner sends realistic prompts to the running application, with the real model, and records for each one the full response including the execution trace. What is assessed is the **trace** (which agent was delegated to, in what order and overlap, which tools and skills were used, which permissions applied), not the wording of the replies.
+
+**How to run it.** Prerequisites: Node 22.12 or newer and `ANTHROPIC_API_KEY` in `.dev.vars`.
+
+```bash
+# terminal 1
+npm run dev
+# terminal 2
+npm run demo
+```
+
+- The demo calls the real model, so it needs the key and the dev server running, and it costs a small amount per run (not measured). If the server is unreachable it exits with a message.
+- `BASE_URL` (environment variable, default `http://localhost:8787`) points it at another address.
+- `npm run demo -- --retries N` (0 to 5) repeats a scenario after a FAIL; all attempts are kept in the JSON file and the last one is shown in the markdown. `--only NN` runs one scenario.
+- Output goes to [examples/scenarios/](examples/scenarios/): a `.md` and a `.json` per scenario, plus an index in [examples/scenarios/README.md](examples/scenarios/README.md).
+- Expectations are reported as PASS / FAIL / INFO, never enforced, and were not adjusted to pass.
+
+**Recorded results** (one run each, `claude-haiku-5-5`, 2026-11-09). Every request is independent: none of the implemented scenarios relies on conversation history.
+
+| # | Example prompt | Expected behaviour | Observed trace | Recorded | Files |
+|---|---|---|---|---|---|
+| 1 | "My VPN keeps disconnecting every few minutes when I work from home. Can you help me fix it?" (ana) | IT delegation, skill loading, native tool use | One delegation, to IT. IT: `load_skill` (vpn-troubleshooting), `get_service_status`, `kb_search`, all ok. No HR delegation. All statuses ok. | 5 PASS | [md](examples/scenarios/01-it-support.md), [json](examples/scenarios/01-it-support.json) |
+| 2 | "What is the company policy on working remotely, and how do I request it?" (ana) | HR delegation, MCP-backed retrieval | HR was delegated twice in sequence (the second task asked for the full article); HR called `kb_search` 5 times, all ok. No `mcp_unavailable`. No IT delegation. | 4 PASS, 1 INFO (IT delegations: 0) | [md](examples/scenarios/02-hr-policy.md), [json](examples/scenarios/02-hr-policy.json) |
+| 3 | "Two things: my laptop will not turn on at all, and how many days of annual leave am I entitled to?" (ana) | Concurrent execution, one combined response | IT and HR both started at 2137 ms and their spans overlap. IT `kb_search` x3, HR `kb_search` x2, all ok. One reply. | 3 PASS | [md](examples/scenarios/03-parallel-it-hr.md), [json](examples/scenarios/03-parallel-it-hr.json) |
+| 4 | "A new backend developer joins my team next Monday. Check the HR policy to find out which equipment profile applies to engineers, and then tell me how IT will set that equipment up." (ana) | Sequential execution; the HR result is passed explicitly into the IT task | HR ran 1398 to 6430 ms, then IT started at 7865 ms. The IT task text contains the profile "Developer Workstation" found by HR. HR `kb_search` x3, IT `kb_search` x5, all ok. | 4 PASS, 1 INFO (HR retrieval succeeded) | [md](examples/scenarios/04-sequential-hr-then-it.md), [json](examples/scenarios/04-sequential-hr-then-it.json) |
+| 5 | "What is the salary band for a senior developer?" (ana, then marko) | The capability is not exposed to any agent for the employee and the orchestrator explains it cannot do it; for the manager it is answered through HR | ana: no delegation and no tool calls; the orchestrator replied that her role has no access to salary bands. marko: HR delegated, `get_salary_band` called once, ok. | 2 PASS, 1 INFO (ana's reply wording is left to manual reading) | [md](examples/scenarios/05-role-permissions.md), [json](examples/scenarios/05-role-permissions.json) |
+| 6 | A specialist is delegated a task that needs a capability it lacks | The capability is not in that specialist's tool set; the specialist reports the limitation back | Not implemented | n/a | [md](examples/scenarios/06-specialist-missing-capability.md) |
+| 7 | Integration failure (MCP server in failure mode) | The orchestrator explains the limitation without claiming success | Not implemented | n/a | [md](examples/scenarios/07-mcp-failure.md) |
+
+**In the browser UI.** The UI has four demo buttons: Parallel, Dependent, Restricted and Skill ([ui/src/DemoButtons.tsx](ui/src/DemoButtons.tsx)). Their wording differs from the prompts above, and there is no button for scenario 2. Parallel is close to scenario 3, Dependent to scenario 4 (loosely), Restricted is the scenario 5 prompt (switch the user to compare ana and marko) and Skill is close to scenario 1. The trace panel shows each delegation, groups overlapping specialist runs under "ran in parallel", and highlights `skill_loaded` and `mcp_unavailable` events.
+
 ## 7. Trade-offs
 
 | Choice | Alternative | Reason |
@@ -177,33 +210,8 @@ The React UI in [ui/](ui/) is built by Vite into `ui-dist/` and served by the Wo
 | Error messages from fixed text and status codes | Scrubbing provider errors | Scrubbing can miss something. Fixed text cannot leak a key, header or prompt. |
 | Keyword search in the mock knowledge base | Embeddings / vector search | The articles are few and fictional. Substring scoring (title weighted higher) is deterministic and testable. |
 
-## 8. Requirements coverage
 
-"Test" gives the file and the exact test title. "manual only" means there is no automated test; some of these need a real model and key.
-
-| Requirement | Status | Where | Test |
-|---|---|---|---|
-| Exactly three agents (orchestrator, IT, HR), no separate interaction agent | Done | `AGENT_IDS` in [src/types.ts](src/types.ts); [src/agents/runAgent.ts](src/agents/runAgent.ts), [src/agents/orchestrator.ts](src/agents/orchestrator.ts), [src/agents/specialists.ts](src/agents/specialists.ts) | [test/specialists.test.ts](test/specialists.test.ts): "IT: loads the skill (body only via tool result), checks status, closes the client" (IT through the real `runAgent`); [test/orchestrator.test.ts](test/orchestrator.test.ts): "orchestrator has exactly the two ask_* tools (%s)" |
-| Delegation to the right specialist | Done (routing is by prompt and tool descriptions, so model-dependent) | [src/agents/orchestrator.ts](src/agents/orchestrator.ts) | [test/orchestrator.test.ts](test/orchestrator.test.ts): "the specialist receives the identical ctx object"; routing quality with a real model: manual only |
-| Independent tasks run concurrently | Done | [src/agents/orchestrator.ts](src/agents/orchestrator.ts) (tool calls of one step run concurrently in the AI SDK) | [test/orchestrator.test.ts](test/orchestrator.test.ts): "two delegations in one step overlap: total ≈ max, not sum" |
-| Dependent tasks run sequentially, results passed on | Done | [src/agents/orchestrator.ts](src/agents/orchestrator.ts) | [test/orchestrator.test.ts](test/orchestrator.test.ts): "second task contains a value from the first result and starts after it ended" |
-| One coherent final response | Done | [src/agents/orchestrator.ts](src/agents/orchestrator.ts) (only the orchestrator answers the user) | [test/api.test.ts](test/api.test.ts): "%s gets a reply, status and trace" |
-| Honest handling of missing information and failures | Done | [src/agents/orchestrator.ts](src/agents/orchestrator.ts), [src/agents/runAgent.ts](src/agents/runAgent.ts), [src/mcp/client.ts](src/mcp/client.ts) | [test/orchestrator.test.ts](test/orchestrator.test.ts): "a follow-up question without tool calls is ok with zero delegations", "a hanging specialist yields timeout and the orchestrator answers honestly", "connectMcp rejecting -> unavailable, no message leak"; wording of real answers: manual only |
-| Own instructions, message history and tools per agent | **Partial**: instructions and tools are separate; history exists only within one request (see section 9) | [src/agents/specialists.ts](src/agents/specialists.ts), [src/agents/orchestrator.ts](src/agents/orchestrator.ts) | [test/specialists.test.ts](test/specialists.test.ts): "domain texts differ and contain no forbidden words"; [test/orchestrator.test.ts](test/orchestrator.test.ts): "a specialist reads only its own history" |
-| Bounded execution (steps, timeouts, input length) | Done | [src/config.ts](src/config.ts), [src/agents/runAgent.ts](src/agents/runAgent.ts) | [test/runAgent.test.ts](test/runAgent.test.ts): "fails honestly when the step limit is reached without a final answer", "times out after the per-agent timeout"; [test/orchestrator.test.ts](test/orchestrator.test.ts): "calls beyond the budget are unavailable and run nothing" |
-| Native tool with validated input and a useful result | Done | [src/tools/native.ts](src/tools/native.ts), [src/data/mock.ts](src/data/mock.ts) | [test/native-tools.test.ts](test/native-tools.test.ts): "rejects invalid input with a clear error", "returns status for a valid service" |
-| MCP: discovery and invocation through a working client/server connection | Done | [src/mcp/server.ts](src/mcp/server.ts), [src/mcp/client.ts](src/mcp/client.ts) | [test/mcp-client.test.ts](test/mcp-client.test.ts): "works through handleMcpRequest in-process (real protocol, no network)"; [test/mcp-server.test.ts](test/mcp-server.test.ts): "lists tools over Streamable HTTP" |
-| Skill loaded on demand, with a demonstrated execution | Done | [src/skills/](src/skills/), [src/tools/skills.ts](src/tools/skills.ts) | [test/skills-demo.test.ts](test/skills-demo.test.ts): "loads the skill on demand, applies its steps and answers from the real status"; UI demo with a real model: manual only |
-| Two roles with meaningfully different permissions | Done | [src/users.ts](src/users.ts), [src/permissions/registry.ts](src/permissions/registry.ts) | [test/users.test.ts](test/users.test.ts): "resolves ana as employee and marko as manager"; [test/api.test.ts](test/api.test.ts): "differs between ana and marko and is grouped by agent" |
-| A capability for one role only | Done (`get_salary_band`, manager only) | [src/permissions/registry.ts](src/permissions/registry.ts) | [test/api.test.ts](test/api.test.ts): "salary question: refused for employee, answered for manager (full path)"; [test/native-guard.test.ts](test/native-guard.test.ts): "does not touch the salary data for an employee" |
-| A capability for one agent only | Done (`get_service_status`, IT only) | [src/permissions/registry.ts](src/permissions/registry.ts) | [test/specialists.test.ts](test/specialists.test.ts): "IT never has get_salary_band, HR never has get_service_status" |
-| Only capabilities permitted for both the user and the agent are exposed | Done | [src/permissions/policy.ts](src/permissions/policy.ts) | [test/permissions.test.ts](test/permissions.test.ts): "covers every combination exactly once", "refuses when called directly with the filter bypassed, without running the tool" |
-| Delegation preserves the user's permissions | Done | [src/agents/orchestrator.ts](src/agents/orchestrator.ts), [src/routes/api.ts](src/routes/api.ts) | [test/orchestrator.test.ts](test/orchestrator.test.ts): "the specialist receives the identical ctx object"; [test/api.test.ts](test/api.test.ts): "ignores role and userId in the body" |
-| Agents do not offer unavailable capabilities | Done (prompt-level, model-dependent; the tools themselves are removed in code) | [src/permissions/policy.ts](src/permissions/policy.ts) (`describeUnavailable`), [src/agents/specialists.ts](src/agents/specialists.ts) | [test/permissions.test.ts](test/permissions.test.ts): "tells an employee that salary bands are unavailable"; [test/specialists.test.ts](test/specialists.test.ts): "describeUnavailable text appears for employee+hr and not for manager+hr" |
-| Strict TypeScript, Cloudflare Workers, tool-calling LLM, MCP, automated tests | Done | [tsconfig.json](tsconfig.json), [wrangler.jsonc](wrangler.jsonc), [src/model.ts](src/model.ts) | `npm run typecheck`, `npm test` |
-| README with roles, model, configuration, trade-offs | Done | this file | n/a |
-
-## 9. Not implemented, limitations and next steps
+## 8. Not implemented, limitations and next steps
 
 ### Persistent conversation history
 
@@ -220,33 +228,65 @@ How it would be built:
 - The role is always derived server-side, never taken from stored or client data.
 - A reset route.
 
+### Remaining demo scenarios
+
+The scenarios marked "Not implemented" in the demo scenarios section.
+
 ### Testing
 
 Test coverage was not audited systematically: there is no coverage report and no mutation testing. The permission tests assert literal expected values (for example the full role x agent x capability matrix in [test/permissions.test.ts](test/permissions.test.ts)), not values computed from the registry.
 
-### Behaviour observed with the real model
-
-In manual runs, the assistant occasionally says it only saw excerpts of a knowledge-base article although it receives the full text, and it sometimes widens a delegated task beyond what the user asked. Neither affects permissions or limits, which are enforced in code. Next step: a small evaluation set run against the real model.
+A systematic pass would add a coverage report and mutation checks for the permission layer: widen a role in the registry, remove the check inside the tool guard, run delegations sequentially, read the role from the request body, and confirm that a test fails each time.
 
 ### Other limitations
 
-- The header-based user switcher is spoofable by design (no authentication; out of scope).
-- No streaming: the reply arrives when the whole request is done.
+- The header-based user switcher is spoofable by design (no authentication; out of scope). The two users are fixed records.
+- No streaming: the reply arrives when the whole request is done, and each message triggers several model calls, so a reply takes several seconds.
 - No rate limiting.
-- Aborting a request in the browser does not stop the Worker.
+- Aborting a request in the browser may not stop the work already running in the Worker.
 - The MCP server runs in the same Worker, and knowledge-base search is simple keyword matching.
-- All company data is fictional ("Acme d.o.").
+- All company data is fictional ("Acme d.o.o.").
 - UI logic is tested only for the trace view ([test/trace.test.ts](test/trace.test.ts), [test/trace-schema.test.ts](test/trace-schema.test.ts)); there are no browser tests.
 - Timing-sensitive tests (for example the parallel-delegation check) can be sensitive to machine load.
 - In the trace, the delegated `task` and tool results are truncated to 200 characters.
 
 ### Production next steps
 
-- Real authentication and identity.
-- A separate MCP Worker protected with OAuth.
-- Sessions as described above.
-- Streaming.
-- Rate limiting and per-user budgets.
-- Observability beyond the Worker logs.
-- An evaluation suite.
-- Secrets via `wrangler secret` instead of `.dev.vars`.
+- **Identity.** Real authentication (for example Cloudflare Access or OIDC), with the role derived from a group or directory, and the real display name and relevant profile data passed into the prompts dynamically instead of relying on fixed users.
+- **Sessions** as described above.
+- **MCP.** A separate MCP Worker protected with OAuth.
+- **Cost and abuse control.** Rate limiting and per-user token budgets, and cancelling server-side work when the client disconnects.
+- **Prompt-injection hardening.** Knowledge-base text and tool results are treated as data by instruction only. Add technical defences: label and delimit untrusted content, limit what tool results can influence, and test with adversarial articles.
+- **Secrets and data protection.** Secrets via `wrangler secret` instead of `.dev.vars`, key rotation, and masking of personal data in traces and logs.
+- **Observability.** Structured logs, metrics, per-request cost tracking, and trace storage beyond the Worker logs and the browser UI.
+- **CI and deployment.** A pipeline running type checks and tests and scanning for committed secrets, plus `wrangler deploy` for staging and production.
+- **An evaluation suite**, as described above.
+
+### Further improvements
+
+- **Quality and cost of answers.** A smaller, cheaper model for specialist lookups and a stronger one for the orchestrator, chosen per agent behind `getModel`; prompt caching for the stable parts of the prompts.
+- **Retrieval.** Replace keyword matching with vector search and make articles updatable without a redeploy.
+- **Skills from storage.** Load skills from KV or R2 instead of bundling them at build time, keeping the same on-demand loading mechanism.
+- **Orchestration framework.** Model calls and tools use the Vercel AI SDK, but the orchestration itself (delegation, concurrency, limits, honest failure reporting) is hand-written, which keeps each component small and visible. A graph-based framework such as LangGraph.js, or the Cloudflare Agents SDK, would add state graphs, retries, checkpointing and ready-made agent hosting, at the cost of a heavier dependency and a less transparent control flow. Worth revisiting as the flows get more complex.
+- **More LLM providers.** `getModel` currently supports only Anthropic. Another provider is one new case plus its API key, or the `ai` binding for Workers AI.
+- **Docker.** The app runs through Wrangler, so a Dockerfile would mainly give a reproducible local and CI environment, not a production artifact (production runs on Cloudflare).
+- **User interface.** The UI was generated quickly and kept deliberately simple. Next steps: a cleaner layout, browser tests for the chat and trace panels, an accessibility review, and a persisted conversation view once history exists.
+
+
+## 9. How AI was used in development
+
+The application was built with an AI coding agent, with me directing the work and reviewing every step. The process was deliberately structured:
+
+- **Task decomposition.** I first split the task into concrete units (project setup, types and permissions, native tools, agent loop, MCP server and client, skills, specialists, orchestrator, API, UI, documentation), each with its own prompt, a clear goal and strict constraints.
+- **Constant reference to the requirements.** The agent was given the full task text and a requirements checklist as working documents and had to follow them while generating code. I steered it when it drifted, for example away from the on-demand skill loading, the permission model, or the agent boundaries the task defines.
+- **Concise, context-aware prompts.** Every prompt stated the goal, the relevant task requirements, acceptance criteria and explicit constraints, and took into account what was already implemented, so the agent reused existing code instead of duplicating it.
+- **Plan review before code.** For each prompt I read the agent's plan first and corrected it before anything was written.
+- **Manual approval of every change.** Code was generated with each edit approved by hand, and I reviewed and adjusted the unit tests to confirm the intended behaviour, not just that the tests pass.
+- **Checks against the running system.** Beyond the automated tests, I exercised the API and the UI with the real model as both users and compared the traces with what each scenario is supposed to show.
+
+Some parts received less attention by choice, because of the time box: the UI was generated with a lighter touch and is intentionally simple.
+
+## 10. Time spent
+
+- **Development:** about 8 hours.
+- **Planning and documentation:** additional hours on top of that, spent on breaking the task into steps, designing the prompts for each step, deciding on the architecture of the solution, and writing the documentation.
