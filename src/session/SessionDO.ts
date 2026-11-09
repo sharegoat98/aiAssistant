@@ -1,4 +1,4 @@
 import { DurableObject } from "cloudflare:workers";
 
-/** Placeholder Durable Object; per-session state is added in a later step. */
+/** Intentionally unused (step 9a not implemented): the API is stateless per request. */
 export class SessionDO extends DurableObject<Env> {}

@@ -1,0 +1,254 @@
+{
+  "scenario": {
+    "id": "03",
+    "title": "Independent IT and HR questions in one request",
+    "expected": "Concurrent execution of both specialists and one combined response."
+  },
+  "model": {
+    "provider": "anthropic",
+    "id": "claude-haiku-5-5"
+  },
+  "date": "2026-11-09",
+  "shownAttempt": 1,
+  "attempts": [
+    {
+      "runs": [
+        {
+          "user": "ana",
+          "prompt": "Two things: my laptop will not turn on at all, and how many days of annual leave am I entitled to?",
+          "httpStatus": 200,
+          "response": {
+            "reply": "**Laptop that won't turn on:** I couldn't find troubleshooting steps for this in the knowledge base, so I can't give you power-on checks from company documentation. Please contact the IT service desk and report that the laptop does not power on. If the laptop needs replacing, the \"Requesting new equipment\" article says the request goes through the IT service desk with your manager's approval, and you return the broken device.\n\n**Annual leave:** You are entitled to **22 working days of annual leave per calendar year**, plus public holidays (source: \"Annual leave\").\n- Request leave in the HR portal at least 5 working days in advance. Your manager approves or declines it.\n- Up to 5 unused days can be carried over until 30 June of the following year.\n- Sick leave does not reduce your annual leave (source: \"Sick leave\").\n\nThe search results did not mention any factor, such as length of service, age, or part-time status, that changes this number. I could only see part of the \"Annual leave\" article, though, so if your situation is unusual, check the full article or ask HR to confirm.",
+            "status": "ok",
+            "trace": [
+              {
+                "ts": 1794183669331,
+                "agent": "orchestrator",
+                "type": "agent_start"
+              },
+              {
+                "ts": 1794183671468,
+                "agent": "orchestrator",
+                "type": "tool_call",
+                "tool": "ask_it_specialist",
+                "input": {
+                  "task": "An employee of Acme d.o.o. reports that their company laptop will not turn on at all. Please provide troubleshooting steps from the company knowledge base (wiki) for a laptop that does not power on, and say which knowledge base articles you used. Also state when the employee should contact IT support or escalate."
+                }
+              },
+              {
+                "ts": 1794183671468,
+                "agent": "orchestrator",
+                "type": "tool_call",
+                "tool": "ask_hr_specialist",
+                "input": {
+                  "task": "An employee of Acme d.o.o. asks how many days of annual leave they are entitled to. Please provide the annual leave entitlement according to company policy, including any factors that change the number (such as length of service, age, or part-time status), and say which policy or knowledge base articles you used."
+                }
+              },
+              {
+                "ts": 1794183671468,
+                "agent": "it",
+                "type": "agent_start",
+                "task": "An employee of Acme d.o.o. reports that their company laptop will not turn on at all. Please provide troubleshooting steps from the company knowledge base (wiki) for a laptop that does not power on, a"
+              },
+              {
+                "ts": 1794183671468,
+                "agent": "hr",
+                "type": "agent_start",
+                "task": "An employee of Acme d.o.o. asks how many days of annual leave they are entitled to. Please provide the annual leave entitlement according to company policy, including any factors that change the numbe"
+              },
+              {
+                "ts": 1794183672799,
+                "agent": "it",
+                "type": "tool_call",
+                "tool": "kb_search",
+                "input": {
+                  "query": "laptop will not power on"
+                }
+              },
+              {
+                "ts": 1794183672799,
+                "agent": "it",
+                "type": "tool_call",
+                "tool": "kb_search",
+                "input": {
+                  "query": "laptop does not turn on boot troubleshooting"
+                }
+              },
+              {
+                "ts": 1794183672801,
+                "agent": "it",
+                "type": "tool_result",
+                "tool": "kb_search",
+                "ok": true,
+                "summary": "{\"ok\":true,\"results\":[{\"id\":\"it-mfa\",\"title\":\"Multi-factor authentication (MFA)\",\"snippet\":\"All Acme accounts require MFA. Enroll the Acme Authenticator app by scanning the QR code on first sign-in. I…"
+              },
+              {
+                "ts": 1794183672801,
+                "agent": "it",
+                "type": "tool_result",
+                "tool": "kb_search",
+                "ok": true,
+                "summary": "{\"ok\":true,\"results\":[{\"id\":\"it-vpn\",\"title\":\"VPN connection problems\",\"snippet\":\"If the VPN does not connect, first check your internet connection and restart the VPN client. If that fails, the VPN c…"
+              },
+              {
+                "ts": 1794183672804,
+                "agent": "hr",
+                "type": "tool_call",
+                "tool": "kb_search",
+                "input": {
+                  "query": "annual leave entitlement days"
+                }
+              },
+              {
+                "ts": 1794183672804,
+                "agent": "hr",
+                "type": "tool_call",
+                "tool": "kb_search",
+                "input": {
+                  "query": "annual leave length of service age part-time"
+                }
+              },
+              {
+                "ts": 1794183672805,
+                "agent": "hr",
+                "type": "tool_result",
+                "tool": "kb_search",
+                "ok": true,
+                "summary": "{\"ok\":true,\"results\":[{\"id\":\"hr-annual-leave\",\"title\":\"Annual leave\",\"snippet\":\"Every Acme d.o.o. employee is entitled to 22 working days of annual leave per calendar year, plus public holidays. Reque…"
+              },
+              {
+                "ts": 1794183672805,
+                "agent": "hr",
+                "type": "tool_result",
+                "tool": "kb_search",
+                "ok": true,
+                "summary": "{\"ok\":true,\"results\":[{\"id\":\"hr-annual-leave\",\"title\":\"Annual leave\",\"snippet\":\"Every Acme d.o.o. employee is entitled to 22 working days of annual leave per calendar year, plus public holidays. Reque…"
+              },
+              {
+                "ts": 1794183673721,
+                "agent": "it",
+                "type": "tool_call",
+                "tool": "kb_search",
+                "input": {
+                  "query": "hardware battery charger broken device replacement"
+                }
+              },
+              {
+                "ts": 1794183673723,
+                "agent": "it",
+                "type": "tool_result",
+                "tool": "kb_search",
+                "ok": true,
+                "summary": "{\"ok\":true,\"results\":[{\"id\":\"it-new-equipment\",\"title\":\"Requesting new equipment\",\"snippet\":\"New laptops, monitors and headsets are requested through the IT service desk with your manager's approval. …"
+              },
+              {
+                "ts": 1794183675768,
+                "agent": "hr",
+                "type": "agent_end",
+                "status": "ok"
+              },
+              {
+                "ts": 1794183675768,
+                "agent": "orchestrator",
+                "type": "tool_result",
+                "tool": "ask_hr_specialist",
+                "ok": true,
+                "summary": "{\"status\":\"ok\",\"agent\":\"hr\",\"content\":\"**Findings**\\n\\n- The Acme d.o.o. annual leave policy gives every employee **22 working days of annual leave per calendar year**, plus public holidays. (Source: …"
+              },
+              {
+                "ts": 1794183676792,
+                "agent": "it",
+                "type": "agent_end",
+                "status": "ok"
+              },
+              {
+                "ts": 1794183676792,
+                "agent": "orchestrator",
+                "type": "tool_result",
+                "tool": "ask_it_specialist",
+                "ok": true,
+                "summary": "{\"status\":\"ok\",\"agent\":\"it\",\"content\":\"**Findings**\\n- The knowledge base has no article on a laptop that will not power on. I searched with three keyword sets (power on, boot/turn on, battery/charger…"
+              },
+              {
+                "ts": 1794183679353,
+                "agent": "orchestrator",
+                "type": "agent_end",
+                "status": "ok"
+              }
+            ]
+          },
+          "summary": {
+            "delegations": [
+              {
+                "agent": "it",
+                "task": "An employee of Acme d.o.o. reports that their company laptop will not turn on at all. Please provide troubleshooting steps from the company knowledge base (wiki) for a laptop that does not power on, and say which knowledge base articles you used. Also state when the employee should contact IT support or escalate.",
+                "startMs": 2137,
+                "endMs": 7461,
+                "status": "ok"
+              },
+              {
+                "agent": "hr",
+                "task": "An employee of Acme d.o.o. asks how many days of annual leave they are entitled to. Please provide the annual leave entitlement according to company policy, including any factors that change the number (such as length of service, age, or part-time status), and say which policy or knowledge base articles you used.",
+                "startMs": 2137,
+                "endMs": 6437,
+                "status": "ok"
+              }
+            ],
+            "overlap": true,
+            "tools": [
+              {
+                "agent": "orchestrator",
+                "tool": "ask_it_specialist",
+                "calls": 1,
+                "ok": 1,
+                "failed": 0
+              },
+              {
+                "agent": "orchestrator",
+                "tool": "ask_hr_specialist",
+                "calls": 1,
+                "ok": 1,
+                "failed": 0
+              },
+              {
+                "agent": "it",
+                "tool": "kb_search",
+                "calls": 3,
+                "ok": 3,
+                "failed": 0
+              },
+              {
+                "agent": "hr",
+                "tool": "kb_search",
+                "calls": 2,
+                "ok": 2,
+                "failed": 0
+              }
+            ],
+            "skills": [],
+            "mcpUnavailable": [],
+            "finalStatuses": {
+              "hr": "ok",
+              "it": "ok",
+              "orchestrator": "ok"
+            }
+          }
+        }
+      ],
+      "expectations": [
+        {
+          "verdict": "PASS",
+          "text": "Both specialists were delegated to"
+        },
+        {
+          "verdict": "PASS",
+          "text": "Both specialists started before either finished (spans overlap)"
+        },
+        {
+          "verdict": "PASS",
+          "text": "One combined reply: the orchestrator finished with status ok and a non-empty reply"
+        }
+      ]
+    }
+  ]
+}

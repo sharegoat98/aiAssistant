@@ -6,7 +6,7 @@
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
   "assets": {
-    "directory": "./public",
+    "directory": "./ui-dist",
     "run_worker_first": ["/api/*", "/mcp", "/health"]
   },
   "durable_objects": {
