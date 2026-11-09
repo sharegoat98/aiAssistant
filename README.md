@@ -246,7 +246,7 @@ A systematic pass would add a coverage report and mutation checks for the permis
 - The MCP server runs in the same Worker, and knowledge-base search is simple keyword matching.
 - All company data is fictional ("Acme d.o.o.").
 - UI logic is tested only for the trace view ([test/trace.test.ts](test/trace.test.ts), [test/trace-schema.test.ts](test/trace-schema.test.ts)); there are no browser tests.
-- Timing-sensitive tests (for example the parallel-delegation check) can be sensitive to machine load.
+- Timing-sensitive tests (flaky tests, for example the parallel-delegation check) can be sensitive to machine load.
 - In the trace, the delegated `task` and tool results are truncated to 200 characters.
 
 ### Production next steps
